@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: jcom-bank-reconciliation
+    env: python
+    plan: starter
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app:app --host 0.0.0.0 --port $PORT"
+    disk:
+      name: jcom-recon-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
+      - key: REPORTS_DIR
+        value: /var/data/reports

@@ -1,0 +1,6 @@
+data/*.db
+data/*.key
+uploads/*
+reports/*
+!uploads/.gitkeep
+!reports/.gitkeep
