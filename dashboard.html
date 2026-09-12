@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}New Reconciliation{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">THE JUNAGADH COMM.CO.OP.BANK LTD</div>
+  <h1>New Reconciliation</h1>
+  <p class="sub">Upload the HDFC statement and your three GL suspense heads. Matching runs entirely on this server.</p>
+</div>
+
+<div class="card">
+  <h2>1 &nbsp;·&nbsp; Files</h2>
+  <form id="recon-form">
+    <label for="run_label">Label this run (optional)</label>
+    <input type="text" id="run_label" name="run_label" placeholder="e.g. 25 Aug 2026 EOD">
+
+    <div class="slot-grid">
+      <div class="slot" data-slot="hdfc">
+        <span class="tag">HDFC Main</span>
+        <div class="label">Bank Statement</div>
+        <input type="file" name="file_hdfc" accept=".csv" required>
+        <div class="filename"></div>
+      </div>
+      <div class="slot" data-slot="3493">
+        <span class="tag">GL 3493</span>
+        <div class="label">Outward RTGS / NEFT</div>
+        <input type="file" name="file_3493" accept=".csv" required>
+        <div class="filename"></div>
+      </div>
+      <div class="slot" data-slot="3496">
+        <span class="tag">GL 3496</span>
+        <div class="label">Inward RTGS / NEFT</div>
+        <input type="file" name="file_3496" accept=".csv" required>
+        <div class="filename"></div>
+      </div>
+      <div class="slot" data-slot="345051">
+        <span class="tag">GL 345051</span>
+        <div class="label">IMPS / UPI / POS / ACH / NACH / Returns</div>
+        <input type="file" name="file_345051" accept=".csv" required>
+        <div class="filename"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <button class="btn" type="submit" id="run-btn">Run Reconciliation</button>
+    </div>
+    <div id="progress">Matching entries…</div>
+  </form>
+</div>
+
+<div id="results"></div>
+
+<script src="/static/dashboard.js"></script>
+{% endblock %}

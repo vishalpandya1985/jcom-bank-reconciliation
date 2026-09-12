@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Manual Review{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">{{ run['run_label'] }} · GL {{ active_gl }} · {{ gl_desc }}</div>
+  <h1>{{ 'Undo Manual Review' if is_excluded else 'Mark as Manually Reviewed' }}</h1>
+  <p class="sub">
+    {% if is_excluded %}
+    This entry was previously excluded by hand. Undoing puts it back to its original status
+    ({{ entry.get('prior_status', 'Pending') }}) so it shows up as pending again.
+    {% else %}
+    This does not delete anything — the entry stays in the record permanently, just marked as
+    reviewed and excluded from your pending queue, with your name and reason attached for the audit trail.
+    {% endif %}
+  </p>
+</div>
+
+<div class="card" style="max-width: 620px;">
+  <h2>Entry</h2>
+  <table class="ledger" style="margin-bottom: 20px;">
+    <tr><td style="width:120px; color:var(--text-muted);">Date</td><td>{{ entry['post_date'] }}</td></tr>
+    <tr><td style="color:var(--text-muted);">Narration</td><td>{{ entry['narration'] }}</td></tr>
+    <tr><td style="color:var(--text-muted);">Amount</td><td>{{ '{:,.2f}'.format(entry['amount']) }} ({{ entry['dr_cr'] }})</td></tr>
+    <tr><td style="color:var(--text-muted);">Current Status</td><td>{{ entry['status'] }}</td></tr>
+    {% if entry.get('note') %}
+    <tr><td style="color:var(--text-muted);">Note</td><td>{{ entry['note'] }}</td></tr>
+    {% endif %}
+  </table>
+
+  {% if is_excluded %}
+  <form method="post" action="/runs/{{ run['id'] }}/manual-undo">
+    <input type="hidden" name="gl" value="{{ active_gl }}">
+    <input type="hidden" name="idx" value="{{ idx }}">
+    <button class="btn" type="submit">Undo — Restore to Pending</button>
+    <a class="btn secondary" href="/runs/{{ run['id'] }}?gl={{ active_gl }}&status=excluded">Cancel</a>
+  </form>
+  {% else %}
+  <form method="post" action="/runs/{{ run['id'] }}/manual-clear">
+    <input type="hidden" name="gl" value="{{ active_gl }}">
+    <input type="hidden" name="idx" value="{{ idx }}">
+    <label for="reason">Reason (required — this is kept permanently for the audit trail)</label>
+    <textarea id="reason" name="reason" rows="3" required
+      style="width:100%; padding:10px 12px; border:1px solid var(--ledger-line-strong); border-radius:var(--radius); font-family:var(--font-ui); font-size:14px; margin-bottom:16px;"
+      placeholder="e.g. Confirmed with branch manually — cash deposit recorded separately, will never appear in HDFC statement"></textarea>
+    <button class="btn" type="submit">Mark as Manually Reviewed</button>
+    <a class="btn secondary" href="/runs/{{ run['id'] }}?gl={{ active_gl }}&status=pending">Cancel</a>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

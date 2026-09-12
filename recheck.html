@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Re-check Pending{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">{{ run['run_label'] }} · GL {{ active_gl }}</div>
+  <h1>Re-check Pending Entries</h1>
+  <p class="sub">
+    Some RTGS/NEFT/UPI entries settle a day (or more) after the original transaction date.
+    Upload a later HDFC statement below and we'll check only the entries that are still
+    <strong>Pending</strong> for {{ active_gl }} — {{ gl_desc }} against it. Anything that matches
+    gets marked <strong>Cleared Next Day</strong>; everything else stays untouched.
+  </p>
+</div>
+
+<div class="card" style="max-width: 520px;">
+  <h2>{{ pending_count }} entr{{ 'y is' if pending_count == 1 else 'ies are' }} currently pending for this GL</h2>
+
+  {% if pending_count == 0 %}
+  <p class="hint">Nothing to re-check — every entry in this GL head is already matched or not applicable.</p>
+  <a class="btn secondary" href="/runs/{{ run['id'] }}?gl={{ active_gl }}">Back to entries</a>
+  {% else %}
+  <form method="post" action="/runs/{{ run['id'] }}/recheck" enctype="multipart/form-data">
+    <input type="hidden" name="gl" value="{{ active_gl }}">
+    <label for="file_hdfc">Later HDFC Statement (CSV)</label>
+    <input type="file" id="file_hdfc" name="file_hdfc" accept=".csv" required>
+    <div style="margin-top: 18px;">
+      <button class="btn" type="submit">Re-check {{ pending_count }} Pending Entries</button>
+      <a class="btn secondary" href="/runs/{{ run['id'] }}?gl={{ active_gl }}">Cancel</a>
+    </div>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

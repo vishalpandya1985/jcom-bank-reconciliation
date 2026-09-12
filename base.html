@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Reconciliation{% endblock %} · JCOM Bank</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-badge"><img src="/static/logo.jpg" alt="JCOM Bank"></div>
+        <div class="eyebrow">Back Office</div>
+        <div class="title">JCOM Bank</div>
+      </div>
+      <nav>
+        <a href="/dashboard" class="{% if active == 'dashboard' %}active{% endif %}">New Reconciliation</a>
+        <a href="/history" class="{% if active == 'history' %}active{% endif %}">History</a>
+        {% if user and user['is_admin'] %}
+        <a href="/admin/users" class="{% if active == 'users' %}active{% endif %}">Team &amp; Users</a>
+        {% endif %}
+      </nav>
+      <div class="spacer"></div>
+      {% if user %}
+      <div class="userbox">
+        <span class="who">{{ user['display_name'] }}</span>
+        <a href="/change-password">Change password</a> · <a href="/logout">Sign out</a>
+      </div>
+      {% endif %}
+      <div style="padding: 10px 20px; font-size: 11px; color: #7C8371; border-top: 1px solid rgba(255,255,255,0.08);">
+        Developed by VISHAL D. PANDYA
+      </div>
+    </aside>
+    <main class="main">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{{ run['run_label'] }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Run · {{ run['created_at'][:16].replace('T', ' ') }} UTC</div>
+  <h1>{{ run['run_label'] }}</h1>
+  <p class="sub">Run by {{ run['display_name'] }}. <a href="/reports/{{ run['id'] }}">Download full Excel report</a> · <a href="/history">Back to History</a></p>
+</div>
+
+{% if cleared is defined and cleared is not none %}
+<div class="card" style="background: #E6F2EB; border-color: #2E7D5B;">
+  {% if cleared > 0 %}
+  <strong>{{ cleared }} entr{{ 'y' if cleared == 1 else 'ies' }} cleared</strong> — matched against the statement you just uploaded and marked "Cleared Next Day".
+  {% else %}
+  <strong>No matches found</strong> — none of the still-pending entries matched the statement you uploaded. They remain Pending.
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="dark-panel">
+  <div class="dp-tabs">
+    {% for code, desc in [('3493','Outward RTGS/NEFT'), ('3496','Inward RTGS/NEFT'), ('345051','IMPS/UPI/POS/ACH/NACH')] %}
+    <a class="dp-tab {% if active_gl == code %}active{% endif %}" href="/runs/{{ run['id'] }}?gl={{ code }}&status={{ active_status }}">
+      <span class="dot"></span>{{ code }} · {{ desc }} ({{ summary['per_gl'][code]['matched'] }}/{{ summary['per_gl'][code]['total'] }})
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="dp-tabs">
+    {% for s, label in [('all','All Types'), ('matched','Matched'), ('pending','Pending'), ('excluded','Excluded')] %}
+    <a class="dp-tab {% if active_status == s %}active{% endif %}" href="/runs/{{ run['id'] }}?gl={{ active_gl }}&status={{ s }}">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="dp-tabs" style="margin-bottom: 20px;">
+    <a class="dp-tab" href="/runs/{{ run['id'] }}/export/csv?gl={{ active_gl }}&status={{ active_status }}">⬇ CSV</a>
+    <a class="dp-tab" href="/runs/{{ run['id'] }}/export/xlsx?gl={{ active_gl }}&status={{ active_status }}">⬇ Excel</a>
+    <a class="dp-tab" href="/runs/{{ run['id'] }}/export/pdf?gl={{ active_gl }}&status={{ active_status }}">⬇ PDF</a>
+    <a class="dp-tab" href="/runs/{{ run['id'] }}/recheck?gl={{ active_gl }}" style="margin-left: auto;">↻ Re-check Pending Against Later Statement</a>
+  </div>
+
+  <div class="dp-table-wrap">
+    {% if entries %}
+    <table class="dp-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Flag</th>
+          <th>Ref No</th>
+          <th class="num">Amount</th>
+          <th>Action</th>
+          <th>Actual Date</th>
+          <th class="num">Credit Txn</th>
+          <th class="num">Debit Txn</th>
+          <th>Status</th>
+          <th>Day</th>
+          <th class="num">Count</th>
+          <th>Review</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in entries %}
+        <tr>
+          <td>{{ e['post_date'] }}</td>
+          <td class="wrap">{{ e['narration'] }}</td>
+          <td>{{ e['dr_cr'] }}</td>
+          <td><span class="dp-flag">{{ e['flag'] }}</span></td>
+          <td>{{ e['matched_ref'] or '—' }}</td>
+          <td class="num">{{ '{:,.2f}'.format(e['amount']) }}</td>
+          <td>
+            {% if e['status'].startswith('Matched') %}
+            <span class="dp-action ok" title="{{ e['status'] }}">✓</span>
+            {% elif e['status'].startswith('Excluded') %}
+            <span class="dp-action na" title="{{ e['note'] }}">M</span>
+            {% elif 'Not Applicable' in e['status'] %}
+            <span class="dp-action na" title="Not applicable">–</span>
+            {% else %}
+            <span class="dp-action warn" title="Pending">✕</span>
+            {% endif %}
+          </td>
+          <td>{{ e['matched_date'] or '—' }}</td>
+          <td class="num">{% if e['credit_amt'] %}<span class="dp-credit">{{ '{:,.2f}'.format(e['credit_amt']) }}</span>{% else %}—{% endif %}</td>
+          <td class="num">{% if e['debit_amt'] %}<span class="dp-debit">{{ '{:,.2f}'.format(e['debit_amt']) }}</span>{% else %}—{% endif %}</td>
+          <td>
+            {% if e['status'] == 'Matched - Cleared Next Day' %}
+            <span class="dp-status matched">Cleared Next Day</span>
+            {% elif e['status'].startswith('Matched') %}
+            <span class="dp-status matched">Matched</span>
+            {% elif e['status'].startswith('Excluded') %}
+            <span class="dp-status na">Excluded</span>
+            {% elif 'Not Applicable' in e['status'] %}
+            <span class="dp-status na">N/A</span>
+            {% elif 'Multiple' in e['status'] %}
+            <span class="dp-status conflict">Conflict</span>
+            {% else %}
+            <span class="dp-status pending">Pending</span>
+            {% endif %}
+          </td>
+          <td>{{ e['day'] }}</td>
+          <td class="num">{{ e['seq'] }}</td>
+          <td>
+            {% if e['status'].startswith('Excluded') %}
+            <a class="dp-tab" href="/runs/{{ run['id'] }}/manual-clear?gl={{ active_gl }}&idx={{ e['orig_idx'] }}">Undo</a>
+            {% elif not e['status'].startswith('Matched') and 'Not Applicable' not in e['status'] %}
+            <a class="dp-tab" href="/runs/{{ run['id'] }}/manual-clear?gl={{ active_gl }}&idx={{ e['orig_idx'] }}">Review</a>
+            {% else %}
+            —
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="dp-empty">No entries match this filter.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set up · JCOM Bank</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="auth-shell">
+    <div class="auth-card">
+      <div class="logo-badge"><img src="/static/logo.jpg" alt="JCOM Bank"></div>
+      <div class="eyebrow">First-time setup</div>
+      <h1>Create the admin account</h1>
+      <p class="hint" style="margin-top:-14px; margin-bottom:18px;">
+        This is the first account on this server, so it becomes the admin.
+        You'll add your teammates afterwards from Team &amp; Users.
+      </p>
+      <form method="post" action="/signup">
+        <label for="display_name">Your name</label>
+        <input type="text" id="display_name" name="display_name" required autofocus>
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" required>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="new-password" required minlength="6">
+        <button class="btn" type="submit" style="width:100%">Create admin account</button>
+      </form>
+      <div class="switch">Developed by VISHAL D. PANDYA</div>
+    </div>
+  </div>
+</body>
+</html>

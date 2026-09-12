@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Team & Users{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Admin</div>
+  <h1>Team &amp; Users</h1>
+  <p class="sub">Add accounts for teammates who need access to this server.</p>
+</div>
+
+{% if error %}<div class="card"><div class="error-banner">{{ error }}</div></div>{% endif %}
+
+<div class="card" style="max-width:420px;">
+  <h2>Add a teammate</h2>
+  <form method="post" action="/admin/users">
+    <label for="display_name">Name</label>
+    <input type="text" id="display_name" name="display_name" required>
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" required>
+    <label for="password">Temporary password</label>
+    <input type="password" id="password" name="password" required minlength="6">
+    <p class="hint" style="margin-top:-10px; margin-bottom:16px;">They'll be asked to choose their own password the first time they sign in.</p>
+    <div class="checkbox-row">
+      <input type="checkbox" id="is_admin" name="is_admin" value="1">
+      <label for="is_admin">Make this person an admin too</label>
+    </div>
+    <button class="btn" type="submit">Add user</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Everyone with access</h2>
+  <table class="ledger">
+    <thead>
+      <tr>
+        <th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Added</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u['display_name'] }}</td>
+        <td>{{ u['username'] }}</td>
+        <td>{% if u['is_admin'] %}Admin{% else %}Member{% endif %}</td>
+        <td>
+          {% if u['is_locked'] %}
+          <span class="badge conflict">Locked ({{ u['failed_attempts'] }} failed)</span>
+          {% elif u['must_change_password'] %}
+          <span class="badge pending">Must change password</span>
+          {% else %}
+          <span class="badge matched">Active</span>
+          {% endif %}
+        </td>
+        <td>{{ u['created_at'][:10] }}</td>
+        <td>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+            {% if u['is_locked'] %}
+            <form method="post" action="/admin/users/{{ u['id'] }}/unlock" style="display:inline;">
+              <button class="btn secondary" type="submit" style="padding:5px 10px; font-size:12px;">Unlock</button>
+            </form>
+            {% endif %}
+
+            <details style="display:inline-block;">
+              <summary class="btn secondary" style="padding:5px 10px; font-size:12px; display:inline-block; cursor:pointer; list-style:none;">Reset Password</summary>
+              <form method="post" action="/admin/users/{{ u['id'] }}/reset-password" style="margin-top:8px; min-width:220px;">
+                <input type="password" name="new_password" placeholder="New temporary password" required minlength="6"
+                  style="width:100%; padding:8px 10px; border:1px solid var(--ledger-line-strong); border-radius:var(--radius); font-size:13px; margin-bottom:8px;">
+                <button class="btn" type="submit" style="padding:5px 10px; font-size:12px;">Set Password</button>
+              </form>
+            </details>
+
+            {% if u['id'] != user['id'] %}
+            <form method="post" action="/admin/users/{{ u['id'] }}/delete" style="display:inline;"
+                  onsubmit="return confirm('Remove {{ u['display_name'] }} ({{ u['username'] }})? They will lose access immediately. Their past reconciliation runs stay in History.');">
+              <button class="btn secondary" type="submit" style="padding:5px 10px; font-size:12px; color:var(--conflict); border-color:var(--conflict);">Delete</button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

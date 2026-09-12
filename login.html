@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in · JCOM Bank</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="auth-shell">
+    <div class="auth-card">
+      <div class="logo-badge"><img src="/static/logo.jpg" alt="JCOM Bank"></div>
+      <div class="eyebrow">Back Office</div>
+      <h1>Sign in to JCOM Bank</h1>
+      {% if error %}<div class="error-banner">{{ error }}</div>{% endif %}
+      <form method="post" action="/login">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" required autofocus>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required>
+        <button class="btn" type="submit" style="width:100%">Sign in</button>
+      </form>
+      <div class="switch"><a href="/forgot-password">Forgot your password?</a></div>
+      <div class="switch" style="margin-top:6px;">New team members are added by your admin from the Team &amp; Users page.</div>
+      <div class="switch" style="margin-top:6px;">Developed by VISHAL D. PANDYA</div>
+    </div>
+  </div>
+</body>
+</html>

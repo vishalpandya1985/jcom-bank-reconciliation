@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Past Runs</div>
+  <h1>Reconciliation History</h1>
+  <p class="sub">{% if user['is_admin'] %}Showing every run across the team.{% else %}Showing your own runs.{% endif %}</p>
+</div>
+
+<div class="card">
+  {% if runs %}
+  <table class="ledger">
+    <thead>
+      <tr>
+        <th>Run</th>
+        <th>Run by</th>
+        <th>Date</th>
+        <th class="num">Total</th>
+        <th class="num">Matched</th>
+        <th class="num">Pending</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for run in runs %}
+      {% set s = run['summary_json'] | from_json %}
+      <tr>
+        <td>{{ run['run_label'] }}</td>
+        <td>{{ run['display_name'] }}</td>
+        <td>{{ run['created_at'][:16].replace('T', ' ') }} UTC</td>
+        <td class="num">{{ s['total'] }}</td>
+        <td class="num" style="color: var(--verified)">{{ s['matched'] }}</td>
+        <td class="num" style="color: var(--query)">{{ s['pending'] }}</td>
+        <td>
+          <a class="btn secondary" href="/runs/{{ run['id'] }}">View</a>
+          <a class="btn secondary" href="/reports/{{ run['id'] }}">Download</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">📂</div>
+    No reconciliations run yet. <a href="/dashboard">Run your first one</a>.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
